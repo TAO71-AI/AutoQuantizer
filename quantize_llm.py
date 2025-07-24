@@ -310,7 +310,7 @@ for quant in Quants:
     else:
         modelSize = "00 B"
 
-    modelCardTable += f"|[{quant}](https://huggingface.co/{HF_Username}/{GetRepoName()}/resolve/main/{outfile})|{modelSize}|{quantDescription}|\n"
+    modelCardTable += f"|[{quant}](https://huggingface.co/{HF_Username}/{GetRepoName()}/resolve/main/{LLM_Repo.replace('/', '_')}_{quant}.gguf)|{modelSize}|{quantDescription}|\n"
     logging.Log(logging.LOG_LEVEL_INFO, f"Model quantized to '{quant}'!")
 
 if (not TestingMode):
