@@ -1,7 +1,7 @@
 # Installation
 ## 1. Install llama.cpp
 ```bash
-git clone https://github.com/ggml-org/llama.cpp-git
+git clone https://github.com/ggml-org/llama.cpp.git
 cd llama.cpp
 pip install -r requirements.txt
 cmake -B build -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS
@@ -35,5 +35,6 @@ python quantize_llm.py [ARGUMENTS]
 |--lcpp-quant=FILE|Override the default script file to execute when quantizing.|str|"build/bin/llama-quantize"|
 |--model-card-template=TEMPLATE|Override the default model card template.|str|Check the script.|
 |--repo-name-template=TEMPLATE|Override the default repository name template.|str|Check the script.|
-|--repo-public|Make the created repository public.|-|-|
-|--test|Test the script to make sure it works without executing commands.|-|-|
+|--repo-public|Make the created repository public.|-|False|
+|--test|Test the script to make sure it works without executing commands.|-|False|
+|--as-dir|Uploads the entire model directory in a single commit, instead of uploading files one by one.|-|False|

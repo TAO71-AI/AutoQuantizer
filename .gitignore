@@ -3,3 +3,4 @@ env/
 cache/
 output/
 __pycache__/
+llama.cpp/

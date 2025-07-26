@@ -5,7 +5,7 @@ import sys
 import os
 import shutil
 
-def ExecuteCommand(Cmd: str, Critical: bool = False) -> None:
+def ExecuteCommand(Cmd: str, Critical: bool = False) -> int:
     logging.Log(logging.LOG_LEVEL_INFO, f"Executing command '{Cmd}'.")
     outCode = os.system(Cmd)
 
@@ -16,6 +16,8 @@ def ExecuteCommand(Cmd: str, Critical: bool = False) -> None:
         exit(1)
     else:
         logging.Log(logging.LOG_LEVEL_ERRO, "^-- Error executing command.")
+
+    return outCode
 
 def GetQuantInfo(Name: str, Critical: bool = False) -> dict[str, str] | None:
     if (Name.upper() not in list(QUANTS_AVAILABLE.keys())):
@@ -172,6 +174,7 @@ Quants: list[str] = []
 LLM_Repo: str | None = None
 LLM_CreateRepoPrivate: bool = True
 LLM_CreateRepoNameTemplate: str = "[MODEL_NAME]-GGUF"
+LLM_UploadAsDir: bool = False
 LLM_CacheDir: str = "cache"
 LLM_ModelCardTemplate: str = "[METADATA]\n[TABLE]\n\n---\n\nQuantized using [TAO71-AI AutoQuantizer](https://github.com/TAO71-AI/AutoQuantizer).\nYou can check out the original model card [here](https://huggingface.co/[IN_REPO])."
 GGUF_Output: str = "output"
@@ -214,6 +217,8 @@ if (len(sys.argv) > 1):
             LLM_ModelCardTemplate = arg[22:]
         elif (arg.startswith("--repo-name-template=")):
             LLM_CreateRepoNameTemplate = arg[21:]
+        elif (arg == "--as-dir"):
+            LLM_UploadAsDir = True
         elif (arg == "--repo-public"):
             LLM_CreateRepoPrivate = False
         elif (arg == "--test"):
@@ -264,7 +269,7 @@ if (GGUF_File is None):
         raise RuntimeError()
 
     if (not TestingMode):
-        ExecuteCommand((f"'{LLAMA_PreConvertToGGUF}' " if (len(LLAMA_PreConvertToGGUF) > 0) else "") + f"{LLAMA_Dir}/{LLAMA_ConvertToGGUF}' '{LLM_CacheDir}/{LLM_Repo.replace('/', '_')}' --outtype {outtype.lower()} --outfile '{outfile}'", True)
+        ExecuteCommand((f"'{LLAMA_PreConvertToGGUF}' " if (len(LLAMA_PreConvertToGGUF) > 0) else "") + f"'{LLAMA_Dir}/{LLAMA_ConvertToGGUF}' '{LLM_CacheDir}/{LLM_Repo.replace('/', '_')}' --outtype {outtype.lower()} --outfile '{outfile}'", True)
 
     GGUF_File = outfile
 
@@ -301,14 +306,31 @@ for quant in Quants:
     else:
         quantDescription = quantInfo["description"]
 
-    if (not TestingMode):
-        ExecuteCommand((f"'{LLAMA_PreQuantize}' " if (len(LLAMA_PreQuantize) > 0) else "") + f"'{LLAMA_Dir}/{LLAMA_Quantize}' {quantExtraParams} '{GGUF_File}' '{outfile}' {quantName}", True)
+    if (os.path.exists(outfile)):
+        logging.Log(logging.LOG_LEVEL_INFO, "Quanted file alredy exists. Ignoring.")
 
         modelSize = os.path.getsize(outfile)
         modelSize = FormatSize(modelSize)
         modelSize = f"{modelSize[0]} {modelSize[1]}"
     else:
-        modelSize = "00 B"
+        if (not TestingMode):
+            outCode = ExecuteCommand((f"'{LLAMA_PreQuantize}' " if (len(LLAMA_PreQuantize) > 0) else "") + f"'{LLAMA_Dir}/{LLAMA_Quantize}' {quantExtraParams} '{GGUF_File}' '{outfile}' {quantName}", False)
+
+            if (outCode != 0):
+                try:
+                    logging.Log(logging.LOG_TYPE_INFO, "Trying to delete the uncompleted quant.")
+                    os.remove(outfile)
+                    logging.Log(logging.LOG_TYPE_INFO, "Uncompleted quant deleted without errors.")
+                except:
+                    logging.Log(logging.LOG_TYPE_ERROR, "Error deleting the uncompleted quant. Please delete manually.")
+
+                exit(1)
+
+            modelSize = os.path.getsize(outfile)
+            modelSize = FormatSize(modelSize)
+            modelSize = f"{modelSize[0]} {modelSize[1]}"
+        else:
+            modelSize = "00 B"
 
     modelCardTable += f"|[{quant}](https://huggingface.co/{HF_Username}/{GetRepoName()}/resolve/main/{LLM_Repo.replace('/', '_')}_{quant}.gguf)|{modelSize}|{quantDescription}|\n"
     logging.Log(logging.LOG_LEVEL_INFO, f"Model quantized to '{quant}'!")
@@ -348,7 +370,15 @@ if (not RepoExists(f"{HF_Username}/{GetRepoName()}")):
 logging.Log(logging.LOG_LEVEL_INFO, f"Uploading contents of '{GGUF_Output}/{GetRepoName()}' (local) to '{HF_Username}/{GetRepoName()}' (remote).")
 
 if (not TestingMode):
-    HF_API.upload_folder(folder_path = f"{GGUF_Output}/{GetRepoName()}", repo_id = f"{HF_Username}/{GetRepoName()}")
+    if (LLM_UploadAsDir):
+        HF_API.upload_folder(folder_path = f"{GGUF_Output}/{GetRepoName()}", repo_id = f"{HF_Username}/{GetRepoName()}")
+    else:
+        files = os.listdir(f"{GGUF_Output}/{GetRepoName()}")
+        files.sort()
+
+        for file in files:
+            logging.Log(logging.LOG_LEVEL_INFO, f"Uploading '{file}'.")
+            HF_API.upload_file(path_or_fileobj = f"{GGUF_Output}/{GetRepoName()}/{file}", path_in_repo = file, repo_id = f"{HF_Username}/{GetRepoName()}")
 
 logging.Log(logging.LOG_LEVEL_INFO, "Removing output directory.")
 
