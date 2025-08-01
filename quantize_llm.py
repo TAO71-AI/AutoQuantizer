@@ -318,11 +318,11 @@ for quant in Quants:
 
             if (outCode != 0):
                 try:
-                    logging.Log(logging.LOG_TYPE_INFO, "Trying to delete the uncompleted quant.")
+                    logging.Log(logging.LOG_LEVEL_INFO, "Trying to delete the uncompleted quant.")
                     os.remove(outfile)
-                    logging.Log(logging.LOG_TYPE_INFO, "Uncompleted quant deleted without errors.")
+                    logging.Log(logging.LOG_LEVEL_INFO, "Uncompleted quant deleted without errors.")
                 except:
-                    logging.Log(logging.LOG_TYPE_ERROR, "Error deleting the uncompleted quant. Please delete manually.")
+                    logging.Log(logging.LOG_LEVEL_ERRO, "Error deleting the uncompleted quant. Please delete manually.")
 
                 exit(1)
 
