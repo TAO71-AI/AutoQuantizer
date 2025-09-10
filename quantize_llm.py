@@ -49,9 +49,19 @@ def RepoExists(Repo: str) -> bool:
         logging.Log(logging.LOG_LEVEL_ERRO, f"Error checking if a repository exists. Details: {ex}")
 
 QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
+    "Q2_K_XXS": {
+        "lcpp_name": "Q2_K",
+        "extra_params": "--output-tensor-type Q2_K --token-embedding-type Q2_K",
+        "description": "Not recommended for most people. Uses Q2_K for output and embedding too. Extremelly low quality."
+    },
+    "Q2_K_XS": {
+        "lcpp_name": "Q2_K",
+        "extra_params": "--output-tensor-type Q4_K --token-embedding-type Q2_K",
+        "description": "Not recommended for most people. Uses Q4_K for output and Q2_K for embedding. Very low quality."
+    },
     "Q2_K": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q2_K",
         "description": "Not recommended for most people. Very low quality."
     },
     "Q2_K_L": {
@@ -64,19 +74,29 @@ QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
         "extra_params": "--output-tensor-type F16 --token-embedding-type F16",
         "description": "Not recommended for most people. Uses F16 for output and embedding, and Q2_K for everything else. Very low quality."
     },
+    "Q3_K_XXS": {
+        "lcpp_name": "Q3_K_S",
+        "extra_params": "--output-tensor-type Q3_K --token-embedding-type Q3_K",
+        "description": "Not recommended for most people. Uses Q3_K for output and embedding too. Prefer any bigger Q3_K quantization. Very low quality."
+    },
+    "Q3_K_XS": {
+        "lcpp_name": "Q3_K_S",
+        "extra_params": "--output-tensor-type Q4_K --token-embedding-type Q3_K",
+        "description": "Not recommended for most people. Uses Q4_K for output and Q3_K for embedding. Prefer any bigger Q3_K quantization. Very low quality."
+    },
     "Q3_K_S": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q3_K",
         "description": "Not recommended for most people. Prefer any bigger Q3_K quantization. Low quality."
     },
     "Q3_K_M": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q3_K",
         "description": "Not recommended for most people. Low quality."
     },
     "Q3_K_L": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q3_K",
         "description": "Not recommended for most people. Low quality."
     },
     "Q3_K_XL": {
@@ -89,14 +109,19 @@ QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
         "extra_params": "--output-tensor-type F16 --token-embedding-type F16",
         "description": "Not recommended for most people. Uses F16 for output and embedding, and Q3_K_L for everything else. Low quality."
     },
+    "Q4_K_XS": {
+        "lcpp_name": "Q4_K_S",
+        "extra_params": "--output-tensor-type Q4_K --token-embedding-type Q4_K",
+        "description": "Uses Q4_K for output and embedding. Lower quality than Q4_K_S."
+    },
     "Q4_K_S": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q4_K",
         "description": "Recommended. Slightly low quality."
     },
     "Q4_K_M": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q4_K",
         "description": "Recommended. Decent quality for most use cases."
     },
     "Q4_K_L": {
@@ -109,14 +134,24 @@ QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
         "extra_params": "--output-tensor-type F16 --token-embedding-type F16",
         "description": "Recommended. Uses F16 for output and embedding, and Q4_K_M for everything else. Decent quality."
     },
+    "Q5_K_XXS": {
+        "lcpp_name": "Q5_K_S",
+        "extra_params": "--output-tensor-type Q4_K --token-embedding-type Q5_K",
+        "description": "Uses Q4_K for output and Q5_K for embedding. Lower quality than Q5_K_S."
+    },
+    "Q5_K_XS": {
+        "lcpp_name": "Q5_K_S",
+        "extra_params": "--output-tensor-type Q5_K --token-embedding-type Q5_K",
+        "description": "Uses Q5_K for output and embedding. Lower quality than Q5_K_S."
+    },
     "Q5_K_S": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q5_K",
         "description": "Recommended. High quality."
     },
     "Q5_K_M": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q5_K",
         "description": "Recommended. High quality."
     },
     "Q5_K_L": {
@@ -129,9 +164,14 @@ QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
         "extra_params": "--output-tensor-type F16 --token-embedding-type F16",
         "description": "Recommended. Uses F16 for output and embedding, and Q5_K_M for everything else. High quality."
     },
+    "Q6_K_S": {
+        "lcpp_name": "Q6_K",
+        "extra_params": "--output-tensor-type Q4_K --token-embedding-type Q6_K",
+        "description": "Uses Q4_K for output and Q6_K for embedding. Lower quality than Q6_K."
+    },
     "Q6_K": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q6_K",
         "description": "Recommended. Very high quality."
     },
     "Q6_K_L": {
@@ -144,9 +184,19 @@ QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
         "extra_params": "--output-tensor-type F16 --token-embedding-type F16",
         "description": "Recommended. Uses F16 for output and embedding, and Q6_K for everything else. Very high quality."
     },
+    "Q8_K_XS": {
+        "lcpp_name": "Q8_0",
+        "extra_params": "--output-tensor-type Q4_K --token-embedding-type Q8_0",
+        "description": "Uses Q4_K for output and Q8_0 for embedding. Lower quality than Q8_0."
+    },
+    "Q8_K_S": {
+        "lcpp_name": "Q8_0",
+        "extra_params": "--output-tensor-type Q6_K --token-embedding-type Q8_0",
+        "description": "Uses Q6_K for output and Q8_0 for embedding. Lower quality than Q8_0."
+    },
     "Q8_0": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type Q8_0 --token-embedding-type Q8_0",
         "description": "Recommended. Quality almost like F16."
     },
     "Q8_K_XL": {
@@ -156,17 +206,17 @@ QUANTS_AVAILABLE: dict[str, dict[str, str]] = {
     },
     "F16": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type F16 --token-embedding-type F16",
         "description": "Not recommended. Overkill. Prefer Q8_0."
     },
     "BF16": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type BF16 --token-embedding-type BF16",
         "description": "Not recommended. Overkill. Prefer Q8_0."
     },
     "F32": {
         "lcpp_name": None,
-        "extra_params": "",
+        "extra_params": "--output-tensor-type F32 --token-embedding-type F32",
         "description": "Not recommended. Overkill. Prefer Q8_0."
     }
 }
@@ -177,6 +227,7 @@ LLM_CreateRepoNameTemplate: str = "[MODEL_NAME]-GGUF"
 LLM_UploadAsDir: bool = False
 LLM_CacheDir: str = "cache"
 LLM_ModelCardTemplate: str = "[METADATA]\n[TABLE]\n\n---\n\nQuantized using [TAO71-AI AutoQuantizer](https://github.com/TAO71-AI/AutoQuantizer).\nYou can check out the original model card [here](https://huggingface.co/[IN_REPO])."
+LLM_ForceReinstall: bool = False
 GGUF_Output: str = "output"
 GGUF_OutType: str | None = None
 GGUF_File: str | None = None
@@ -223,6 +274,8 @@ if (len(sys.argv) > 1):
             LLM_CreateRepoPrivate = False
         elif (arg == "--test"):
             TestingMode = True
+        elif (arg == "--force-reinstall"):
+            LLM_ForceReinstall = True
         else:
             logging.Log(logging.CRIT, f"Unknown argument '{arg}'.")
             raise ValueError()
@@ -248,7 +301,7 @@ if (LLM_Repo is None or not RepoExists(LLM_Repo)):
     raise RuntimeError()
 
 if (GGUF_File is None):
-    if (not os.path.exists(f"{LLM_CacheDir}/{LLM_Repo.replace('/', '_')}/")):
+    if (not os.path.exists(f"{LLM_CacheDir}/{LLM_Repo.replace('/', '_')}/") or LLM_ForceReinstall):
         logging.Log(logging.LOG_LEVEL_INFO, "Model doesn't exists in cache. Downloading.")
         
         if (not TestingMode):

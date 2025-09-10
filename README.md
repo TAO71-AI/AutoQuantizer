@@ -38,27 +38,37 @@ python quantize_llm.py [ARGUMENTS]
 |--repo-public|Make the created repository public.|-|False|
 |--test|Test the script to make sure it works without executing commands.|-|False|
 |--as-dir|Uploads the entire model directory in a single commit, instead of uploading files one by one.|-|False|
+|--force-reinstall|Force the reinstallation of the LLM.|-|False|
 
 ### LLM quantization methods
+- **Q2_K_XXS**: Uses Q2\_K for the embedding and output weights, and mostly Q2\_K for everything else.
+- **Q2_K_XS**: Uses Q4\_K for the output weights, Q2\_K for embedding, and mostly Q2\_K for everything else.
 - **Q2_K**: Normal Q2\_K quantization. Most weights are in Q2\_K. Not recommended for most LLMs due to it's small precision.
 - **Q2_K_L**: Uses Q8\_0 for the embedding and output weights, and mostly Q2\_K for everything else. Has more precision, but still it's not recommended because it's mostly Q2\_K.
 - **Q2_K_XL**: Uses F16 for the embedding and output weights, and mostly Q2\_K for everything else. Has even more precision, but still not recommended because it's mostly Q2\_K.
+- **Q3_K_XXS**: Uses Q3\_K for embedding and output weights, and Q3\_K\_S for everything else.
+- **Q3_K_XS**: Uses Q4\_K for the output weights, Q3\_K for embedding, and Q3\_K\_S for everything else.
 - **Q3_K_S**: Normal Q3\_K\_S quantization. Most weights are in Q3\_K. Not recommended for most use cases due to it's small precision.
 - **Q3_K_M**: Normal Q3\_K\_M quantization. There are more weights in other quantizations like Q5\_K and others, but mostly it is Q3\_K. Not recommended for most use cases due to it's small precision.
 - **Q3_K_L**: Normal Q3\_K\_L quantization. There are even more weights in other quantizations, but mostly it is Q3\_K. If possible, prefer Q3\_K\_XL, but this might have decent results in some use cases. Only recommended if you have a very slow CPU, GPU, or RAM capacity.
 - **Q3_K_XL**: Uses Q8\_0 for the embedding and output weights, and Q3\_K\_L for everything else. This might have decent results in some use cases.
 - **Q3_K_XXL**: Uses F16 for the embedding and output weights, and Q3\_K\_L for everything else. Prefer this only if you want more precision for the embedding or output weights. For most models the size of this quant is similar to Q4\_K\_S or Q4\_K\_M. Prefer Q4\_K\_S or Q4\_K\_M if the size is similar.
+- **Q4_K_XS**: Uses Q4\_K for embedding and output weights, and Q4\_K\_S for everything else.
 - **Q4_K_S**: Normal Q4\_K\_S quantization. Most weights are in Q4\_K. Gives decent results for most use cases. Slightly lower quality than Q4\_K\_M and requires less CPU, GPU, and RAM.
 - **Q4_K_M**: Normal Q4\_K\_M quantization. There are more weights in other quantizations like Q5\_K and others, but mostly it is Q4\_K. Gives decent results for most use cases. Good quality.
 - **Q4_K_L**: Uses Q8\_0 for the embedding and output weights, and Q4\_K\_M for everything else. More precision than Q4\_K\_M.
 - **Q4_K_XL**: Uses F16 for the embedding and output weights, and Q4\_K\_M for everything else. Prefer Q5\_K\_S or Q5\_K\_M if the size is similar.
+- **Q5_K_XXS**: Uses Q4\_K for output weights, Q5\_K for embedding, and Q5\_K\_S for everything else.
 - **Q5_K_S**: Normal Q5\_K\_S quantization. Most weights are in Q5\_K. High quality and very good results. Very similar to Q5\_K\_M but saving a bit more of memory.
 - **Q5_K_M**: Normal Q5\_K\_M quantization. There are more weights in other quantizations like Q6\_K and others, but mostly it is Q5\_K. High quality and very good results.
 - **Q5_K_L**: Uses Q8\_0 for the embedding and output weights, and Q5\_K\_M for everything else. High quality and very good results.
 - **Q5_K_XL**: Uses F16 for the embedding and output weights, and Q5\_K\_M for everything else. Prefer Q6\_K if the size is similar.
+- **Q6_K_S**: Uses Q4\_K for output weights, Q6\_K for embedding, and mostly Q6\_K for everything else.
 - **Q6_K**: Normal Q6\_K quantization. Most weights are in Q6\_K. Very high quality. Results similar to Q8\_0.
 - **Q6_K_L**: Uses Q8\_0 for the embedding and output weights, and mostly Q6\_K for everything else. Very high quality. Results more similar to Q8\_0 or F16.
 - **Q6_K_XL**: Uses F16 for the embedding and output weights, and mostly Q6\_K for everything else. Prefer Q6\_K\_L.
+- **Q8_K_XS**: Uses Q4\_K for output weights, Q8\_0 for embedding, and mostly Q8\_0 for everything else.
+- **Q8_K_S**: Uses Q6\_K for output weights, Q8\_0 for embedding, and mostly Q8\_0 for everything else.
 - **Q8_0**: Normal Q8\_0 quantization. Most weights are in Q8\_0. Quality almost like F16, saving around half the memory required for F16.
 - **Q8_K_XL**: Uses F16 for the embedding and output weights, and mostly Q8\_0 for everything else. Prefer Q8\_0.
 - **F16**: Normal F16 quantization. Most weights are in F16. If the model has been trained in BF16 or F32, prefer BF16. Not recommended because Q8\_0 has almost the same quality. Only use this if the model has been trained in F16 and you really need full precision.
